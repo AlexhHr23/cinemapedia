@@ -38,21 +38,53 @@ class _HomeViewState extends ConsumerState<_HomeView> {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final slideShowMovies = ref.watch(moviesSlideshowProvider);
 
-    return Column(
-      children: [
+    return CustomScrollView(
+      slivers: [
+        const SliverAppBar(
+          floating: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: CustomAppbar(),
+          ),
+        ),
 
-        const CustomAppbar(),
+        SliverList(delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Column(
+        children: [
+      
+          //const CustomAppbar(),
+      
+          MoviesSlideshow(movies: slideShowMovies),
+      
+          MovieHorizontalListView(
+            movies: nowPlayingMovies,
+            title: 'En cines',
+            subtitle: 'Lunes 20',
+            loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage()
+            
+          ),
+          MovieHorizontalListView(
+            movies: nowPlayingMovies,
+            title: 'Proximamente',
+            subtitle: 'En este mes',
+            loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage()
+            
+          ),
+          MovieHorizontalListView(
+            movies: nowPlayingMovies,
+            title: 'Populares',
+            subtitle: 'Desde siempre',
+            loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage()
+            
+          ),
 
-        MoviesSlideshow(movies: slideShowMovies),
-
-        MovieHorizontalListView(
-          movies: nowPlayingMovies,
-          title: 'En cines',
-          subtitle: 'Lunes 20',
-          loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage()
-          
-        )
-      ],
+          const SizedBox(height: 10)
+        ],
+      );
+          },
+          childCount: 1
+        )),
+      ], 
     );
   }
 }
