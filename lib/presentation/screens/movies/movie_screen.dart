@@ -57,7 +57,7 @@ class _MovieDetails extends StatelessWidget {
 
   final Movie movie;
 
-  const _MovieDetails({super.key, required this.movie});
+  const _MovieDetails({required this.movie});
 
   @override
   Widget build(BuildContext context) {
