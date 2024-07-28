@@ -37,7 +37,7 @@ class _Slide extends StatelessWidget {
 
   final movie;
   
-  const _Slide({super.key, this.movie});
+  const _Slide({this.movie});
 
   @override
   Widget build(BuildContext context) {
