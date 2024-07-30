@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/config/helpers/human_formats.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
@@ -10,14 +12,29 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   final SearchMovieCallback searchMovies;
 
+  StreamController<List<Movie>> debouncedMovies = StreamController.broadcast();
+  Timer?_dobouncedTimer;
+
   SearchMovieDelegate({ required this.searchMovies});
+
+  void _onQueryChange(String query) {
+    _onQueryChange(query);
+  }
 
   @override
   String get searchFiledLabel => 'Buscar pélicula';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    print('query');
+
+    _onQueryChange(String query) {
+      print('Query String cambio');
+      if (_dobouncedTimer?.isActive ?? false) _dobouncedTimer?.cancel();
+
+      _dobouncedTimer = Timer(const Duration(milliseconds: 500), () {
+        print('Buscando peliculas');
+      });
+    }
 
     return [
       FadeIn(
@@ -45,8 +62,8 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return FutureBuilder(
-      future: searchMovies(query), 
+    return StreamBuilder(
+      stream: debouncedMovies.stream, 
       initialData: [],
       builder: (context, snapshot) {
 
