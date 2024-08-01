@@ -17,6 +17,10 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   SearchMovieDelegate({ required this.searchMovies});
 
+  void clearStreams() {
+    debouncedMovies.close();
+  }
+
   void _onQueryChange(String query) {
     _onQueryChange(query);
   }
@@ -27,12 +31,19 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   @override
   List<Widget>? buildActions(BuildContext context) {
 
-    _onQueryChange(String query) {
+    onQueryChange(String query) {
       print('Query String cambio');
       if (_dobouncedTimer?.isActive ?? false) _dobouncedTimer?.cancel();
 
-      _dobouncedTimer = Timer(const Duration(milliseconds: 500), () {
-        print('Buscando peliculas');
+      _dobouncedTimer = Timer(const Duration(milliseconds: 500), () async{
+        if( query.isEmpty) {
+          debouncedMovies.add([]);
+          return;
+        }
+
+        final movies = await searchMovies(query);
+        debouncedMovies.add(movies);
+
       });
     }
 
@@ -50,7 +61,10 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      onPressed: () => close(context, null), 
+      onPressed: () {
+        clearStreams();
+        close(context, null);
+      },
       icon: const Icon(Icons.arrow_back)
       );
   }
@@ -64,7 +78,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   Widget buildSuggestions(BuildContext context) {
     return StreamBuilder(
       stream: debouncedMovies.stream, 
-      initialData: [],
+      initialData: const [],
       builder: (context, snapshot) {
 
         final movies = snapshot.data ?? [];
@@ -73,7 +87,10 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
           itemCount: movies.length,
           itemBuilder: (context, index) => _MovieItem(
             movie: movies[index],
-            onMovieSelected: close,
+            onMovieSelected:(context, movie) {
+              clearStreams();
+              close(context, movie);
+            } ,
           )
         );  
       },
@@ -89,7 +106,7 @@ class _MovieItem extends StatelessWidget {
   final Movie movie;
   final Function onMovieSelected;
 
-  const _MovieItem({super.key, required this.movie, required this.onMovieSelected});
+  const _MovieItem({required this.movie, required this.onMovieSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +149,7 @@ class _MovieItem extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.star_half_rounded, color: Colors.yellow.shade800),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 5),
                       Text(
                         HumanFormats.number(movie.voteAverage, 1),
                         style: textStyle.bodyMedium!.copyWith(color: Colors.yellow.shade900),

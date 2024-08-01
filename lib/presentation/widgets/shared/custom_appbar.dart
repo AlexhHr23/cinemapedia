@@ -1,4 +1,3 @@
-import 'package:cinemapedia/config/routes/app_router.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/delegates/search_movie_delagate.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_repository_provider.dart';

@@ -31,7 +31,7 @@ class CustomSliverAppBarr extends StatelessWidget {
                 movie.posterPath,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                  if(loadingProgress != null) return SizedBox();
+                  if(loadingProgress != null) return const SizedBox();
                   return FadeIn(child: child);
                 },
               ),
