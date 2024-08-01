@@ -13,7 +13,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SearchMovieCallback searchMovies;
 
   StreamController<List<Movie>> debouncedMovies = StreamController.broadcast();
-  Timer?_dobouncedTimer;
+  Timer?_debouncedTimer;
 
   SearchMovieDelegate({ required this.searchMovies});
 
@@ -21,8 +21,17 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     debouncedMovies.close();
   }
 
-  void _onQueryChange(String query) {
-    _onQueryChange(query);
+  void _onQueryChanged(String query) {
+    if(_debouncedTimer?.isActive ?? false ) _debouncedTimer!.cancel();
+
+    _debouncedTimer = Timer(const Duration(milliseconds: 500), () async {
+      if(query.isEmpty) {
+        debouncedMovies.add([]);
+        return;
+      }
+      final movies = await searchMovies( query );
+      debouncedMovies.add(movies);
+    });
   }
 
   @override
@@ -30,22 +39,6 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-
-    onQueryChange(String query) {
-      print('Query String cambio');
-      if (_dobouncedTimer?.isActive ?? false) _dobouncedTimer?.cancel();
-
-      _dobouncedTimer = Timer(const Duration(milliseconds: 500), () async{
-        if( query.isEmpty) {
-          debouncedMovies.add([]);
-          return;
-        }
-
-        final movies = await searchMovies(query);
-        debouncedMovies.add(movies);
-
-      });
-    }
 
     return [
       FadeIn(
@@ -76,6 +69,9 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+
+    _onQueryChanged(query);
+
     return StreamBuilder(
       stream: debouncedMovies.stream, 
       initialData: const [],
