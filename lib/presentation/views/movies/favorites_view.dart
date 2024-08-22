@@ -5,19 +5,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FavoritesView extends ConsumerStatefulWidget {
-  const FavoritesView({super.key, });
+
+  final VoidCallback? loadNextPage;
+
+  const FavoritesView({super.key, this.loadNextPage,});
 
   @override
   FavoritesViewState createState() => FavoritesViewState();
 }
 
+bool isLastPage = false;
+bool isLoading = false;
 
 class FavoritesViewState extends ConsumerState<FavoritesView> {
 
+
+
   @override
   void initState() {
-    super.initState();
-    ref.read(favoriteMoviesProvier.notifier).loadNextPage();
+
+    loadNextPage();
+  }
+
+
+  void loadNextPage() async {
+
+    if(isLoading || isLastPage) return;
+    isLoading = true;
+
+    final movies = await ref.read(favoriteMoviesProvier.notifier).loadNextPage();
+    isLoading = false;
+
+    if(movies.isEmpty) {
+      isLastPage = true;
+    }
+
   }
 
   @override
@@ -25,6 +47,9 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
 
     final favoriteMovies = ref.watch(favoriteMoviesProvier).values.toList();
     
-    return MovieMasonry(movies: favoriteMovies);
+    return MovieMasonry(
+      loadNextPage: loadNextPage,
+      movies: favoriteMovies
+    );
   }
 }
