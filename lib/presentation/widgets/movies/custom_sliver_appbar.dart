@@ -5,6 +5,14 @@ import 'package:cinemapedia/presentation/providers/storage/local_storage_reposit
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final isFavoriteProvider = FutureProvider.family.autoDispose((ref, int movieId){
+
+  final localStorageRepository = ref.watch(localStorageRepositoryProvider); 
+
+  return localStorageRepository.isMovieFavorite(movieId);
+
+});
+
 class CustomSliverAppBarr extends ConsumerWidget {
   final Movie movie;
 
@@ -12,6 +20,9 @@ class CustomSliverAppBarr extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+
+    final isfavoriteFuture = ref.watch(isFavoriteProvider(movie.id));
+
     final size = MediaQuery.of(context).size;
 
     return SliverAppBar(
@@ -21,10 +32,20 @@ class CustomSliverAppBarr extends ConsumerWidget {
       actions: [
         IconButton(
             onPressed: () {
-              ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+              ref.watch(localStorageRepositoryProvider)
+                .toggleFavorite(movie);
+
+              ref.invalidate(isFavoriteProvider(movie.id));
             },
             //icon: Icon(Icons.favorite_border)
-            icon: const Icon(Icons.favorite_border, color: Colors.white))
+            icon: isfavoriteFuture.when(
+              data: (isFavorite) => isFavorite
+              ? const Icon(Icons.favorite_rounded, color: Colors.red)
+              : const Icon(Icons.favorite_border_outlined), 
+              error: (_,__) => throw UnimplementedError(),
+              loading: () => const CircularProgressIndicator(strokeWidth: 2)
+            )
+          )
       ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
