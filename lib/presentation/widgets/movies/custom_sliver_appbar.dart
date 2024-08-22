@@ -1,15 +1,17 @@
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/presentation/providers/storage/local_storage_repository_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomSliverAppBarr extends StatelessWidget {
+class CustomSliverAppBarr extends ConsumerWidget {
   final Movie movie;
 
   const CustomSliverAppBarr({super.key, required this.movie});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final size = MediaQuery.of(context).size;
 
     return SliverAppBar(
@@ -18,9 +20,11 @@ class CustomSliverAppBarr extends StatelessWidget {
       foregroundColor: Colors.white,
       actions: [
         IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+            },
             //icon: Icon(Icons.favorite_border)
-            icon: Icon(Icons.favorite_rounded, color: Colors.white))
+            icon: const Icon(Icons.favorite_border, color: Colors.white))
       ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -28,7 +32,7 @@ class CustomSliverAppBarr extends StatelessWidget {
         //   movie.title,
         //   style: const TextStyle(fontSize: 20, color: Colors.white),
         //   textAlign: TextAlign.start,
-        // ),
+        // ),()
         background: Stack(
           children: [
             SizedBox.expand(
