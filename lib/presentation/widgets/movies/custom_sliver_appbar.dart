@@ -36,7 +36,7 @@ class CustomSliverAppBarr extends ConsumerWidget {
               // ref.watch(localStorageRepositoryProvider)
               //   .toggleFavorite(movie);
 
-              ref.read(favoriteMoviesProvier.notifier).toggleFavorite(movie);
+              await ref.read(favoriteMoviesProvier.notifier).toggleFavorite(movie);
 
               ref.invalidate(isFavoriteProvider(movie.id));
             },
