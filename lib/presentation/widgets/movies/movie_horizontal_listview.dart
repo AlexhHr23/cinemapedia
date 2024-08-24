@@ -105,7 +105,11 @@ class _Slide extends StatelessWidget {
                   }
                   return GestureDetector(
                     onTap: () => context.push('/home/0/movie/${ movie.id }'),
-                    child:FadeIn(child: child)
+                    child:FadeInImage(
+                      fit: BoxFit.cover,
+                      placeholder: const AssetImage('assets/loaders/bottle-loader.gif'), 
+                      image: NetworkImage(movie.posterPath)
+                    )
                   );
                 },
               ),
