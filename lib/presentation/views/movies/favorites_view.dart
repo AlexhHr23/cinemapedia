@@ -18,12 +18,13 @@ class FavoritesView extends ConsumerStatefulWidget {
 bool isLastPage = false;
 bool isLoading = false;
 
-class FavoritesViewState extends ConsumerState<FavoritesView> {
+class FavoritesViewState extends ConsumerState<FavoritesView> with AutomaticKeepAliveClientMixin{
 
 
 
   @override
   void initState() {
+    super.initState();
 
     loadNextPage();
   }
@@ -77,4 +78,7 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
       movies: favoriteMovies
     );
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 }
