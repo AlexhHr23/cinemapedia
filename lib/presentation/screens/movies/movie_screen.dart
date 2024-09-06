@@ -1,7 +1,9 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/actors/actors_by_movie_provider.dart';
 import 'package:cinemapedia/presentation/providers/movies/movie_info_provider.dart';
+import 'package:cinemapedia/presentation/widgets/actors/actors_by_movie.dart';
+import 'package:cinemapedia/presentation/widgets/movies/similar_movies.dart';
+import 'package:cinemapedia/presentation/widgets/videos/videos_from_movie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -70,51 +72,18 @@ class _MovieDetails extends StatelessWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  movie.posterPath,
-                  width: size.width * 0.3,
-                ),
-              ),
-              const SizedBox( width: 10),
-              //Descripción
-              SizedBox(
-                width: (size.width - 40) * 0.7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(movie.title,style: textStyle.titleLarge),
-                    Text(movie.overview)
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
+        _TitleAndOverview(movie: movie, size: size, textStyle: textStyle),
 
         //Generos de la pélicula
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Wrap(
-            children: [
-              ...movie.genreIds.map((gender) => Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: Chip(
-                  label: Text(gender),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-              ))
-            ],
-          ),
-        ),
+        _Genres(movie: movie),
 
-        _ActorsByMovie(movieId: movie.id.toString()),
+        ActorsByMovie(movieId: movie.id.toString()),
+
+        //Videos de la película si tiene
+        VideosFromMovie(movieId: movie.id),
+
+        //Peliculas similares
+        SimiliarMovies(movieId: movie.id),
 
         const SizedBox(height: 50)
       ],
@@ -122,59 +91,72 @@ class _MovieDetails extends StatelessWidget {
   }
 }
 
-class _ActorsByMovie extends ConsumerWidget {
+class _Genres extends StatelessWidget {
+  const _Genres({
+    super.key,
+    required this.movie,
+  });
 
-  final String movieId;
-
-  const _ActorsByMovie({required this.movieId});
+  final Movie movie;
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Wrap(
+        children: [
+          ...movie.genreIds.map((gender) => Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Chip(
+              label: Text(gender),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          ))
+        ],
+      ),
+    );
+  }
+}
 
-    final actorsByMovie = ref.watch(actorsByMovieProvider);
+class _TitleAndOverview extends StatelessWidget {
+  const _TitleAndOverview({
+    super.key,
+    required this.movie,
+    required this.size,
+    required this.textStyle,
+  });
 
-    if( actorsByMovie[movieId]== null) {
-      return const CircularProgressIndicator(strokeWidth: 2);
-    }
+  final Movie movie;
+  final Size size;
+  final TextTheme textStyle;
 
-    final actors = actorsByMovie[movieId]!;
-    
-    return SizedBox(
-      height: 300,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: actors.length,
-        itemBuilder: (context, index) {
-          final actor = actors[index];
-          return Container(
-            padding: const EdgeInsets.all(8),
-            width: 135,
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.network(
+              movie.posterPath,
+              width: size.width * 0.3,
+            ),
+          ),
+          const SizedBox( width: 10),
+          //Descripción
+          SizedBox(
+            width: (size.width - 40) * 0.7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //Actor photo
-                FadeInRight(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      actor.profilePath,
-                      height: 180,
-                      width: 135,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-                Text(actor.name),
-                Text(actor.character ?? '', 
-                maxLines: 2,
-                style: const TextStyle( fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
-                )
+                Text(movie.title,style: textStyle.titleLarge),
+                Text(movie.overview)
               ],
             ),
-          );
-        },
+          )
+        ],
       ),
     );
   }

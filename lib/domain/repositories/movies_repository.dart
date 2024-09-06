@@ -1,4 +1,5 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
+import 'package:cinemapedia/domain/entities/video.dart';
 
 abstract class MoviesRepository {
 
@@ -16,5 +17,10 @@ abstract class MoviesRepository {
   //Bucador
    //Buscador
   Future<List<Movie>> searchMovies(String query);
+
+  Future<List<Movie>> getSimilarMovies(int movieId);
+
+  //Trailes
+  Future<List<Video>> getYoutubeVideosById(int movieId);
 
 }
