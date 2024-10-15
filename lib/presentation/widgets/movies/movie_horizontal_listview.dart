@@ -12,7 +12,7 @@ class MovieHorizontalListView extends StatefulWidget {
   final VoidCallback? loadNextPage;
 
   const MovieHorizontalListView({
-    super.key, 
+    super.key,
     required this.movies, 
     this.title, 
     this.subtitle, 
